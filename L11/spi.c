@@ -4,12 +4,14 @@
 
 int main(int argc, char **argv) {
 
+
   //need running tallies
   long long int Ntotal;
   long long int Ncircle;
 
   //seed random number generator
   double seed = 1.0;
+  //double seed =rank; 
   srand48(seed);
 
   for (long long int n=0; n<1000000000;n++) {
