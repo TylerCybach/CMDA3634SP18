@@ -93,6 +93,7 @@ int main (int argc, char **argv) {
   //throughput measure of bits persecond?
   //double throughPut  = (double) (N * size) / timeElapsed; //jobs times threads divided by runtime
   // the previous throughput would give me infinity   
+  // If the computation is ran fast enough we may divide by zero which is why previous = inf sometimes
   double throughPut = (double) N / timeElapsed;
 
 
