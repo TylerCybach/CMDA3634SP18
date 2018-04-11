@@ -110,7 +110,11 @@ int main(int argc, char **argv){
   int Nthreads = atoi(argv[3]);
 
   // Q2b: set the number of threads per block and the number of blocks here:
+  int Bx = Nthreads;
+  int By = Nthreads;
 
+  int Gx = (Nre + Bx - 1)/Bx;
+  int Gy = (Nim + By -1)/By;
 
   // storage for the iteration counts
   float *count = (float*) malloc(Nre*Nim*sizeof(float));
@@ -130,8 +134,8 @@ int main(int argc, char **argv){
   cmin.i = centIm - 0.5*diam;
   cmax.i = centIm + 0.5*diam;
 
-  dim3 B(Nthreads, Nthreads, 1);
-  dim3 G((Nre+Nthreads-1)/Nthreads, (Nim+Nthreads-1)/Nthreads,1);
+  dim3 B(Bx, By, 1);
+  dim3 G(Gx, Gy, 1);
 
   clock_t start = clock(); //start time in CPU cycles
 
