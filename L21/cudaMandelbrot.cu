@@ -36,7 +36,7 @@ typedef struct {
 }complex_t;
 
 // return iterations before z leaves mandelbrot set for given c
-int testpoint(complex_t c){
+__device__ int testpoint(complex_t c){
   
   int iter;
 
@@ -69,6 +69,22 @@ int testpoint(complex_t c){
 __global__ void  mandelbrot(int Nre, int Nim, complex_t cmin, complex_t cmax, float *count){ 
   int n,m; //unique identifiers indexs ith and jth matrix 
 
+  //Threads
+  int tIdx = threadIdx.x;
+  int tIdy = threadIdx.y;
+
+  //Blocks
+  int bIdx = blockIdx.x;
+  int bIdy = blockIdx.y;
+
+  //BlockDim
+  int bSizex = blockDim.x;
+  int bSizey = blockDim.y;
+
+  //Unique x,y coordinates
+  m = tIdx + bIdx*bSizex;
+  n = tIdy + bIdy*bSizey;
+
   complex_t c;
 
   double dr = (cmax.r-cmin.r)/(Nre-1);
@@ -94,18 +110,13 @@ int main(int argc, char **argv){
   int Nthreads = atoi(argv[3]);
 
   // Q2b: set the number of threads per block and the number of blocks here:
-  int Bx = Nthreads;
-  int By = Nthreads;
-  int Bz = 1;
-
-  dim3 B(Bx,By,Bz); // Bx *By threads in thread-block
- 
-  int Gx = (
-
 
 
   // storage for the iteration counts
   float *count = (float*) malloc(Nre*Nim*sizeof(float));
+
+  float *d_count;
+  cudaMalloc(&d_count, Nre*Nim*sizeof(float));
 
   // Parameters for a bounding box for "c" that generates an interesting image
   const float centRe = -.759856, centIm= .125547;
@@ -119,13 +130,22 @@ int main(int argc, char **argv){
   cmin.i = centIm - 0.5*diam;
   cmax.i = centIm + 0.5*diam;
 
+  dim3 B(Nthreads, Nthreads, 1);
+  dim3 G((Nre+Nthreads-1)/Nthreads, (Nim+Nthreads-1)/Nthreads,1);
+
   clock_t start = clock(); //start time in CPU cycles
 
-  // compute mandelbrot set
-  mandelbrot(Nre, Nim, cmin, cmax, count); 
   
+
+  // compute mandelbrot set
+  mandelbrot<<<G, B>>>(Nre, Nim, cmin, cmax, count); 
+  cudaDeviceSynchronize();  
+
   clock_t end = clock(); //start time in CPU cycles
   
+
+  cudaMemcpy(count, d_count, Nre*Nim*sizeof(float),cudaMemcpyDeviceToHost);
+
   // print elapsed time
   printf("elapsed = %f\n", ((double)(end-start))/CLOCKS_PER_SEC);
 
@@ -137,6 +157,7 @@ int main(int argc, char **argv){
   printf("done.\n");
 
   free(count);
+  cudaFree(d_count);
 
   exit(0);
   return 0;
