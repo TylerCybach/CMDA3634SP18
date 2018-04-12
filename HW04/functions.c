@@ -153,6 +153,7 @@ void ElGamalEncrypt(unsigned int *m, unsigned int *a, unsigned int Nints,
 
   /* Q2.1 Parallelize this function with OpenMP   */
 
+  #pragma omp parallel for shared (m, a)
   for (unsigned int i=0; i<Nints;i++) {
     //pick y in Z_p randomly
     unsigned int y;
@@ -176,6 +177,7 @@ void ElGamalDecrypt(unsigned int *m, unsigned int *a, unsigned int Nints,
 
   /* Q2.1 Parallelize this function with OpenMP   */
 
+  #pragma omp parallel for shared (m, a)
   for (unsigned int i=0; i<Nints;i++) {
     //compute s = a^x
     unsigned int s = modExp(a[i],x,p);
@@ -215,26 +217,33 @@ void padString(unsigned char* string, unsigned int charsPerInt) {
 void convertStringToZ(unsigned char *string, unsigned int Nchars,
                       unsigned int  *Z,      unsigned int Nints) {
 
+  //for every extra bit we are doubling the work
+  // There may be hangtime past 25 bits
   /* Q1.3 Complete this function   */
-  int counter = 0;
+  
   unsigned int charsPerInt = Nchars/Nints;  
   
+  #pragma omp parallel for shared(Z, string)
+  for(unsigned int i = 0; i < Nchars; i = i + charsPerInt) {
 
-  for(i = 0; i < Nchars; i = i + charsPerInt) {
-     for(j = 0; j < charsPerInt; j ++){
-        
-        string[counter] = string[counter] << j*8; //bitwise shift left
-        Z[i] = Z[i]|string[counter];
-        counter++;
-     }
-  } 
- 
+    //depending on charsPerInt will determine how and where chars will be stored
+    switch(charsPerInt) {
 
+      case 1:
+        Z[i/charsPerInt] = (unsigned int) string[i];
+      case 2:
+        Z[i/charsPerInt] = 256 * (unsigned int) string[i] + (unsigned int) string[i + 1];
+      case 3:
+        Z[i/charsPerInt] = 256 * 256 * (unsigned int) string[i] + (unsigned int) string[i + 1] + (unsigned int) string[i + 2];
 
+    }
+
+  }
 
 
 
   /* Q2.2 Parallelize this function with OpenMP   */
+  //above
 
 }
 
@@ -242,8 +251,36 @@ void convertStringToZ(unsigned char *string, unsigned int Nchars,
 void convertZToString(unsigned int  *Z,      unsigned int Nints,
                       unsigned char *string, unsigned int Nchars) {
 
+ 
   /* Q1.4 Complete this function   */
-  /* Q2.2 Parallelize this function with OpenMP   */
+
+
+  unsigned int charsPerInt = Nchars/Nints;
+ 
+  #pragma omp parallel for shared(Z, string)
+  for(unsigned int i = 0; i < Nchars; i = i + charsPerInt){
+    //depending on charsPerInt will determine hwo we extract chars from integers
+    switch (charsPerInt) {
+
+      case 1:
+        Z[i/charsPerInt] = (unsigned char) Z[i] >> 16;
+      case 2:
+        Z[i/charsPerInt] = (unsigned char) (Z[i] << 8) >> 16;
+      case 3:
+        Z[i/charsPerInt] = (unsigned char) (Z[i] << 16) >> 16; //bitwise shift 16 left shift 16 right
+
+    }
+  }
+
+
+
+
+
+
+
+
+/* 2.2 Parallelize this function with OpenMP   */
+//above
 
 }
 
