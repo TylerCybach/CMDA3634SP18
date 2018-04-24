@@ -58,14 +58,14 @@ int main (int argc, char **argv) {
 
   unsigned int *Zmessage = (unsigned int *) malloc(Nints*sizeof(unsigned int));
   
-  convertToStringToZ(message, Nchars, Zmessage, Nints);
+  convertStringToZ(message, Nchars, Zmessage, Nints);
 
   ElGamalEncrypt(Zmessage, a, Nints, p, g, h);
 
-  FILE *fm = fopen("message.txt", "w");
+  FILE * fm = fopen("message.txt", "w");
 
   for (int j = 0; j<Nints; j++) {
-    fprintf(fp, "%u \n", Zmessage[j], a[j]);
+    fprintf(fp, "%u %u \n", Zmessage[j], a[j]);
   }
   
   fclose(fm);
