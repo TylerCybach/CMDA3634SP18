@@ -64,11 +64,13 @@ int main (int argc, char **argv) {
 
   FILE * fm = fopen("message.txt", "w");
 
+  fprintf(fm, "%u \n", Nints);
+  
   for (int j = 0; j<Nints; j++) {
-    fprintf(fp, "%u %u \n", Zmessage[j], a[j]);
+    fprintf(fm, "%u %u \n", Zmessage[j], a[j]);
   }
   
   fclose(fm);
-  
+  free(data);  
   return 0;
 }
