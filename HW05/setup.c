@@ -38,7 +38,7 @@ int main (int argc, char **argv) {
 
   /* Q1 Complete this function and write the puclib key data to the file public_key.txt */
    
-  FILE * fp; 
+  FILE *fp; 
 
   fp = fopen("public_key.txt", "w");
   fprintf(fp, "%u \n", n);

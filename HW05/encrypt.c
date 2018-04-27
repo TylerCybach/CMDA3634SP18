@@ -33,7 +33,7 @@ int main (int argc, char **argv) {
 
   unsigned int *data = (int *) malloc(4*sizeof(unsigned int));
 
-  FILE* fp = fopen("public_key.txt", "r");
+  FILE *fp = fopen("public_key.txt", "r");
   
   for (int i = 0; i < 4; i++){
      fscanf(fp, "%u", data+i);
@@ -62,7 +62,7 @@ int main (int argc, char **argv) {
 
   ElGamalEncrypt(Zmessage, a, Nints, p, g, h);
 
-  FILE * fm = fopen("message.txt", "w");
+  FILE *fm = fopen("message.txt", "w");
 
   fprintf(fm, "%u \n", Nints);
   
