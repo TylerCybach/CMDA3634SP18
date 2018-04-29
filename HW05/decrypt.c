@@ -33,7 +33,7 @@ int main (int argc, char **argv) {
   fp = fopen("public_key.txt", "r");
   fm = fopen("message.txt", "r");
 
-  for(int i = 0; i < 4; i++) {
+  for(unsigned int i = 0; i < 4; i++) {
     fscanf(fp, "%u", data_fp+i);
   }
  
